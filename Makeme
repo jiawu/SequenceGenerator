@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS= -g -std=gnu++0x -I /home/jjw036/.local/include -L ~/.local/lib -I /software/boost/1.41.0/include/ -L /software/boost/1.41.0/lib/ -c
 LDFLAGS= -L /software/boost/1.41.0/lib/ -lboost_regex
-SOURCES=main.cpp SequenceGenerator.cpp
+SOURCES=./src/main.cpp ./src/SequenceGenerator.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=seqGen
+EXECUTABLE=./bin/seqGen
 
 all: $(SOURCES) $(EXECUTABLE)
 	
