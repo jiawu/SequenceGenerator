@@ -1,5 +1,5 @@
 #!/bin/bash
-for filename in $(find /projects/p20519/jia_output/FIMO/P53_01_*.txt -type f); do
+for filename in $(find /projects/p20519/jia_output/FIMO/*.txt -type f); do
   #decompose filename
   base_filename=$(basename "$filename")
   extension="${base_filename##*.}"
