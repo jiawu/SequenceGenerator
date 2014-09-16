@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from CandidateSequences import CandidateSequences
+from CandidateSequences_P53 import CandidateSequences
 
 #main runtime, passes in the FIMO result pipe from shell script
 #overall idea is to process the entries and sort them as them come in.
