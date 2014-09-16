@@ -1,5 +1,5 @@
 #!/usr/bin/python
-MOTIF_FAMILY = ["GATA1","GATA2","GATA3","GATA4","GATA5","GATA6"]
+MOTIF_FAMILY = ["P53","TP53","P73"]
 #i'm thinking about creating an iterator to store my stuff instead...
 #add_entry adds a dict to the iterator
 import scipy.stats as sci
@@ -84,8 +84,8 @@ class CandidateSequences:
     #i need to abstract this later on, and create a settings file
     mongo_client = MongoClient('hera.chem-eng.northwestern.edu',27017)
     db = mongo_client['SeqGen_Database']
-    scores_collection = db['Sequence_Scoresi_GATA1_01']
-    entries_collection = db['Sequence_Entries_GATA1_01']
+    scores_collection = db['Sequence_Scores_P53_01']
+    entries_collection = db['Sequence_Entries_P53_01']
 
     #bulk insert all entries
     #sequence_dict is a dict with the key as the name and the entries as the

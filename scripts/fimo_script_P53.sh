@@ -11,8 +11,8 @@
 chunk_size=20
 counter=0
 #get all files
-all_filenames=($(find /projects/p20519/jia_output/FIMO/GATA1_01/GATA1_01_*.* -type f))
-output_folder="GATA1_output"
+all_filenames=($(find /projects/p20519/jia_output/FIMO/P53_01/P53_01_*.* -type f))
+output_folder="P53_output"
 
 #i need to call 1.. chunk. chunk +1 ... chunk + chunk... etc
 #while loop A to check if all files are processed.
@@ -21,7 +21,7 @@ output_folder="GATA1_output"
 #while loop A also waits 10 minutes between each job submission after 40.
 
 #nbatch should start at 1
-nbatch=462
+nbatch=72
 nfiles=${#all_filenames[@]}
 max_batch=$(($(($nfiles+$chunk_size-1))/$chunk_size))
 
@@ -56,7 +56,7 @@ generate_compress_command () {
   local cmd_base_filename=$2
   local cmd_counter=$3
 
-  compress_command="cat /projects/p20519/jia_output/FIMO/${output_folder}/${cmd_base_filename}_job${cmd_counter}.txt | python /home/jjw036/SequenceGenerator/scripts/FimoEvaluator.py" 
+  compress_command="cat /projects/p20519/jia_output/FIMO/${output_folder}/${cmd_base_filename}_job${cmd_counter}.txt | python /home/jjw036/SequenceGenerator/scripts/FimoEvaluator_P53.py" 
 }
 
 
@@ -116,19 +116,19 @@ while [ $nbatch -lt $(($max_batch+1)) ]; do
   cat <<EOS | msub -
 #!/bin/bash
 #MSUB -A p20519
-#MSUB -l walltime=72:00:00
+#MSUB -l walltime=24:00:00
 #MSUB -l nodes=1:ppn=1
 #MSUB -j oe
 #MSUB -M jiawu@u.northwestern.edu
-#MSUB -N $nbatch
+#MSUB -N P53_$nbatch
 #MSUB -V
 #MSUB -e FIMO_error_file.err
-#MSUB -o FIMO_log_file.log
+#MSUB -o FIMO_log_file_p53.log
 #MSUB -m bae
-#MSUB -q long
+#MSUB -q normal
 
-module load python/anaconda3
 workon seqgen
+module load python/anaconda3
 ${command_list}
 
 EOS

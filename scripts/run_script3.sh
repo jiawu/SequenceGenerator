@@ -25,26 +25,16 @@ do
     module load boost
     module load gcc
     module load utilities
-    /home/jjw036/SequenceGenerator/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 1000 65
+    /home/jjw036/SequenceGenerator/bin/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 1000 65
 
-    7za a -t7z /projects/p20519/jia_output/SequenceGenerator/sequences.7z /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000.txt
-    rm /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000.txt
 
-    /home/jjw036/SequenceGenerator/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 10000 65
-    7za a -t7z /projects/p20519/jia_output/SequenceGenerator/sequences.7z /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000.txt
-    rm /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000.txt
+    /home/jjw036/SequenceGenerator/bin/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 10000 65
 
-    /home/jjw036/SequenceGenerator/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_100000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 100000 65
-    7za a -t7z /projects/p20519/jia_output/SequenceGenerator/sequences.7z /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_100000.txt
-    rm /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_100000.txt
+    /home/jjw036/SequenceGenerator/bin/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_100000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 100000 65
 
-    /home/jjw036/SequenceGenerator/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 1000000 65
-    7za a -t7z /projects/p20519/jia_output/SequenceGenerator/sequences.7z /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000000.txt
-    rm /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000000.txt
+    /home/jjw036/SequenceGenerator/bin/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_1000000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 1000000 65
 
-    /home/jjw036/SequenceGenerator/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 10000000 65
-    7za a -t7z /projects/p20519/jia_output/SequenceGenerator/sequences.7z /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000000.txt
-    rm /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000000.txt
+    /home/jjw036/SequenceGenerator/bin/seqGen /projects/p20519/jia_output/SequenceGenerator/${motif_name}_${COUNTER}_10000000.txt /home/jjw036/SequenceGenerator/TRANSFAC2FIMO.txt $motif_name 10000000 65
 
 EOS
   done
