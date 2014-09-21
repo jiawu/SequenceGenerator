@@ -24,4 +24,5 @@ do
   msub_altered="${msub_altered//OUTPUTCONSTANT/${output}}"
   echo "${msub_altered}" > fimo_jarray_$search.sh
   msub -t ${search_base}_bigrun${run_number_current}.[1-$batches] fimo_jarray_$search.sh 
+  sleep 2m
 done
