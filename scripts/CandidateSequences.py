@@ -1,19 +1,22 @@
 #!/usr/bin/python
-MOTIF_FAMILY = ["GATA1","GATA2","GATA3","GATA4","GATA5","GATA6"]
 #i'm thinking about creating an iterator to store my stuff instead...
 #add_entry adds a dict to the iterator
 import scipy.stats as sci
-import pdb
 from pymongo import MongoClient
+
+DB_ADDRESS = "hera.chem-eng.northwestern.edu"
+PORT=27017
+DB_NAME = "SeqGen_Database2"
 
 class CandidateSequences:
 
   def __init__(self):
     self.entry_number = 0
     self.sequence_dict = {}
-    self.senspec_scores = {}
-    self.sensitivity_scores = {}
-    self.specificity_scores = {}
+    #self.senspec_scores = {}
+    #self.sensitivity_scores = {}
+    #self.specificity_scores = {}
+    #self.repeat_scores = {}
     self.mongo_client = ""
     
   def add_entry(self, line):
@@ -34,10 +37,14 @@ class CandidateSequences:
       return True
     else:
       return False  
- 
-
-  def calculate_senspec(self):
+   
+  def calculate_senspec(self, motif_family, any_contains=True):
+    """returns a score dict, which is a dict of dicts"""
+    score_parent_dict = {}
     for key in self.sequence_dict:
+      #create a score dict
+      score_dict = {}
+      
       entry_list = self.sequence_dict[key]
     
       # to calculate sensitivity, get the zscore of the family and divide it by
@@ -48,8 +55,7 @@ class CandidateSequences:
 
       # to calculate the senspec score, multiply the sensitivity score with the
       # specificity score
-      
-      ontarget_list = self.get_ontarget_motifs(entry_list)
+      ontarget_list = self.get_ontarget_motifs(entry_list, motif_family,any_contains)
       #print(list(ontarget_list))
       nonoverlapping_ontarget_list = self.get_nonoverlapping_motifs(ontarget_list)
       
@@ -63,7 +69,7 @@ class CandidateSequences:
       else:
         sensitivity_score = z_fam/n_fam #n_fam contains non-overlapping motifs
 
-      offtarget_list = self.get_offtarget_motifs(entry_list)
+      offtarget_list = self.get_offtarget_motifs(entry_list,motif_family, any_contains)
       offtarget_list = list(offtarget_list)
       n_other = len(offtarget_list)
       
@@ -75,35 +81,61 @@ class CandidateSequences:
       senspec_score = specificity_score * sensitivity_score
 
       #write to object's collection of dicts
+      score_dict["seq_name"] = key
+      score_dict["senspec"] = senspec_score
+      score_dict["sensitivity"] = sensitivity_score
+      score_dict["specificity"] = specificity_score
+      score_dict["repeats"] = n_fam
+      
+      score_parent_dict[key]=score_dict
 
-      self.senspec_scores[key]=senspec_score
-      self.sensitivity_scores[key] = sensitivity_score
-      self.specificity_scores[key] = specificity_score
+    return(score_parent_dict)
 
-  def insert_contents(self):
+  def insert_contents(self, collection_base_name, family_scores, individual_scores = None):
     #i need to abstract this later on, and create a settings file
-    mongo_client = MongoClient('hera.chem-eng.northwestern.edu',27017)
-    db = mongo_client['SeqGen_Database']
-    scores_collection = db['Sequence_Scoresi_GATA1_01']
-    entries_collection = db['Sequence_Entries_GATA1_01']
+    mongo_client = MongoClient(DB_ADDRESS,PORT)
+    db = mongo_client[DB_NAME]
+
+    score_collection_name = "Sequence_Scores_"+ collection_base_name
+    score_collection_name_top = "Sequence_Scores_"+ collection_base_name +"_top"
+    scores_collection = db[score_collection_name]
+    scores_collection_top = db[score_collection_name_top]
+    
+
+    #entries_collection = db['Sequence_Entries_P53_01']
 
     #bulk insert all entries
     #sequence_dict is a dict with the key as the name and the entries as the
     #entries
-    for key in self.sequence_dict:
-      entries_collection.insert(self.sequence_dict[key])
+    #for key in self.sequence_dict:
+      #entries_collection.insert(self.sequence_dict[key])
 
     score_dict_list = []
     #insert scores
-    for key in self.senspec_scores:
+    for key in family_scores:
+      ref_dict = family_scores[key]
       score_dict = {}
-      score_dict['name'] = key
-      score_dict['senspec'] = self.senspec_scores[key]
-      score_dict['specificity'] = self.specificity_scores[key]
-      score_dict['sensitivity'] = self.sensitivity_scores[key]
+      score_dict['name'] = ref_dict['seq_name']
+      score_dict['senspec_fam'] = ref_dict['senspec']
+      score_dict['specificity_fam'] = ref_dict['specificity']
+      score_dict['sensitivity_fam'] = ref_dict['sensitivity']
+      score_dict['repeats_fam'] = ref_dict['repeats']
+
+      if individual_scores:
+        additional_info = individual_scores[key]
+        score_dict['senspec'] = additional_info["senspec"]
+        score_dict['specificity'] = additional_info["specificity"]
+        score_dict['sensitivity'] = additional_info["sensitivity"]
+        score_dict['repeats'] = additional_info["repeats"]
+
       score_dict_list.append(score_dict)
+    score_dict_list = sorted(score_dict_list, key=lambda k: k['senspec_fam'],reverse=True)
     
-    scores_collection.insert(score_dict_list)
+    print(score_dict_list)
+    #scores_collection_top.insert(score_dict_list[0:100])
+    #scores_collection.insert(score_dict_list[100:])
+    scores_collection_top.insert(score_dict_list[0:1])
+    scores_collection.insert(score_dict_list[1:])
     mongo_client.close()
     return True  
 
@@ -172,14 +204,20 @@ class CandidateSequences:
     else:
       return False
 
-  def get_ontarget_motifs(self,entry_list):
-    ontargets = (item for item in entry_list if any(motif in item['motif_name'] for motif in MOTIF_FAMILY))
+  def get_ontarget_motifs(self,entry_list, motif_family, any_contains):
+    if any_contains:
+      ontargets = (item for item in entry_list if any(motif in item['motif_name'] for motif in motif_family))
+    if not any_contains:
+      ontargets = (item for item in entry_list if (item['motif_name'].endswith(tuple(motif_family))))
     return ontargets
     # search list of dicts, motif_name section.
     # get all dicts that have a certain motif name
 
-  def get_offtarget_motifs(self,entry_list):
-    offtargets = (item for item in entry_list if not any(motif in item['motif_name'] for motif in MOTIF_FAMILY))
+  def get_offtarget_motifs(self,entry_list, motif_family, any_contains):
+    if any_contains:
+      offtargets = (item for item in entry_list if not any(motif in item['motif_name'] for motif in motif_family))
+    if not any_contains:
+      offtargets = (item for item in entry_list if not (item['motif_name'].endswith(tuple(motif_family))))
     return offtargets
     # search list of dicts, motif_name section.
     # get all dicts that have a certain motif name

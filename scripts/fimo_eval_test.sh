@@ -3,7 +3,7 @@
 #this will be a test script to make sure the outputs are correctly piped from
 #to the python output
 
-sequence_file="/projects/p20519/jia_output/FIMO/SMAD3_02_2_10000000.0488"
+sequence_file="/projects/p20519/jia_output/FIMO/FIMO_TEST.txt"
 output_file="/projects/p20519/jia_output/FIMO/P53_01/SMAD3_test.txt"
 
 mkfifo ${output_file}

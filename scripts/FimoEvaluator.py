@@ -1,11 +1,43 @@
 #!/usr/bin/python
 
 import sys
+import getopt
 from CandidateSequences import CandidateSequences
 
+#motif_family="P53_family.txt"
+#collection_base_name="P53_01_1_10000"
 #main runtime, passes in the FIMO result pipe from shell script
 #overall idea is to process the entries and sort them as them come in.
+#class Usage(Exception):
+#  def __init__(self, msg):
+#    self.msg = msg
+
+
 if __name__ == "__main__":
+#  sys.exit(main())
+  
+#def main(argv=None):
+#  if argv is None:
+#    argv = sys.argv
+#  try:
+#    
+#    try:
+#      opts, args = getopt.getopt(argv[1:],"h",["help","motiffam=","collection="])
+#      for o, a in opts:
+#        if o in ("--motiffam"):
+#          motif_family_file = a
+#          with open(motif_family_file, 'r') as motif_file:
+#            motif_family = motif_file.read().splitlines()
+#        elif o in ("--collection"):
+#          collection_base_name = a
+#    except getopt.error, msg:
+#      raise Usage(msg)
+#  
+#  except Usage, err:
+#    print >>sys.stderr, err.msg
+#    print >>sys.stderr, "for help use --help"
+#    return 2
+
   result_list = []
   #instead of a pure dict, instantiate a object that holds a dict and contains a
   #number of methods
@@ -20,11 +52,22 @@ if __name__ == "__main__":
       #function parses line, and appends entry to the key
       result_list.append(line)
 
+  print(result_list[0])
+  seq_name=result_list[0].split()
+  seq_name=seq_name[1]
+  seq_name = seq_name.split("_")
+  motif_family = seq_name[0] + "_family.txt"
+  collection_base_name = "_".join(seq_name[0:4])
+  motif_name = "_".join(seq_name[0:-3])
   #after the results are aggregated, perform calculations
-  sequence_container.calculate_senspec()
+  #print("HELLOWORLD")
+  motif_family_scores = sequence_container.calculate_senspec(motif_family)
+  #print(motif_family_scores)
+  motif_indiv_scores = sequence_container.calculate_senspec([motif_name])
+  #print(motif_indiv_scores)
   #insert to model
   #sequence_container.insert_contents(Model)
-  sequence_container.insert_contents()
+  sequence_container.insert_contents(collection_base_name, motif_family_scores, motif_indiv_scores)
 
   #big_dict = sequence_container.get_dict()
   #with open('testing.txt','w') as testfile:

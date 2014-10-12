@@ -1,11 +1,41 @@
 #!/usr/bin/python
 
 import sys
+import getopt
 from CandidateSequences_P53 import CandidateSequences
 
+
+motif_family = ["P53","TP53","P73"]
 #main runtime, passes in the FIMO result pipe from shell script
 #overall idea is to process the entries and sort them as them come in.
+class Usage(Exception):
+  def __init__(self, msg):
+    self.msg = msg
+
+
 if __name__ == "__main__":
+  sys.exit(main())
+  
+def main(argv=None):
+  if argv is None:
+    argv = sys.argv
+  try:
+    
+    try:
+      opts, args = getopt.getopt(argv[1:],"h",["help","motiffam=","collection="])
+      for o, a in opts:
+        if o in ("--motiffam"):
+          motif_family = a
+        elif o in ("--collection"):
+          collection_base_name = a
+    except getopt.error,msg:
+      raise Usage(msg)
+  
+  except Usage, err:
+    print >>sys.stderr, err.msg
+    print >>sys.stderr, "for help use --help"
+    return 2
+
   result_list = []
   #instead of a pure dict, instantiate a object that holds a dict and contains a
   #number of methods
@@ -21,10 +51,10 @@ if __name__ == "__main__":
       result_list.append(line)
 
   #after the results are aggregated, perform calculations
-  sequence_container.calculate_senspec()
+  sequence_container.calculate_senspec(motif_family)
   #insert to model
   #sequence_container.insert_contents(Model)
-  sequence_container.insert_contents()
+  sequence_container.insert_contents(collection_base_name)
 
   #big_dict = sequence_container.get_dict()
   #with open('testing.txt','w') as testfile:

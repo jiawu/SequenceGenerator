@@ -1,9 +1,7 @@
 #!/usr/bin/python
-MOTIF_FAMILY = ["P53","TP53","P73"]
 #i'm thinking about creating an iterator to store my stuff instead...
 #add_entry adds a dict to the iterator
 import scipy.stats as sci
-import pdb
 from pymongo import MongoClient
 
 class CandidateSequences:
@@ -14,6 +12,7 @@ class CandidateSequences:
     self.senspec_scores = {}
     self.sensitivity_scores = {}
     self.specificity_scores = {}
+    self.repeat_scores = {}
     self.mongo_client = ""
     
   def add_entry(self, line):
@@ -36,7 +35,7 @@ class CandidateSequences:
       return False  
  
 
-  def calculate_senspec(self):
+  def calculate_senspec(self, motif_family):
     for key in self.sequence_dict:
       entry_list = self.sequence_dict[key]
     
@@ -49,9 +48,9 @@ class CandidateSequences:
       # to calculate the senspec score, multiply the sensitivity score with the
       # specificity score
       
-      ontarget_list = self.get_ontarget_motifs(entry_list)
+      ontarget_list = self.get_ontarget_motifs(entry_list, motif_family)
       #print(list(ontarget_list))
-      nonoverlapping_ontarget_list = self.get_nonoverlapping_motifs(ontarget_list)
+      nonoverlapping_ontarget_list = self.get_nonoverlapping_motifs(ontarget_list, motif_family)
       
       n_fam = len(nonoverlapping_ontarget_list)
       #calculate combined zscore
@@ -79,6 +78,7 @@ class CandidateSequences:
       self.senspec_scores[key]=senspec_score
       self.sensitivity_scores[key] = sensitivity_score
       self.specificity_scores[key] = specificity_score
+      self.repeat_scores[key] = nfam
 
   def insert_contents(self):
     #i need to abstract this later on, and create a settings file
@@ -90,8 +90,8 @@ class CandidateSequences:
     #bulk insert all entries
     #sequence_dict is a dict with the key as the name and the entries as the
     #entries
-    for key in self.sequence_dict:
-      entries_collection.insert(self.sequence_dict[key])
+    #for key in self.sequence_dict:
+      #entries_collection.insert(self.sequence_dict[key])
 
     score_dict_list = []
     #insert scores
@@ -101,6 +101,7 @@ class CandidateSequences:
       score_dict['senspec'] = self.senspec_scores[key]
       score_dict['specificity'] = self.specificity_scores[key]
       score_dict['sensitivity'] = self.sensitivity_scores[key]
+      score_dict['repeats'] = self.repeat_scores[key]
       score_dict_list.append(score_dict)
     
     scores_collection.insert(score_dict_list)
@@ -172,14 +173,14 @@ class CandidateSequences:
     else:
       return False
 
-  def get_ontarget_motifs(self,entry_list):
-    ontargets = (item for item in entry_list if any(motif in item['motif_name'] for motif in MOTIF_FAMILY))
+  def get_ontarget_motifs(self,entry_list, motif_family):
+    ontargets = (item for item in entry_list if any(motif in item['motif_name'] for motif in motif_family))
     return ontargets
     # search list of dicts, motif_name section.
     # get all dicts that have a certain motif name
 
-  def get_offtarget_motifs(self,entry_list):
-    offtargets = (item for item in entry_list if not any(motif in item['motif_name'] for motif in MOTIF_FAMILY))
+  def get_offtarget_motifs(self,entry_list, motif_family):
+    offtargets = (item for item in entry_list if not any(motif in item['motif_name'] for motif in motif_family))
     return offtargets
     # search list of dicts, motif_name section.
     # get all dicts that have a certain motif name

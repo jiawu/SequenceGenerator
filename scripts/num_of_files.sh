@@ -8,7 +8,7 @@
 
 #for each job, have a wait time every 40 jobs.
 
-chunk_size=20
+chunk_size=5
 counter=0
 #get all files
 search=GATA1_01_1_10000000

@@ -1,13 +1,14 @@
 #!/bin/bash
 #MSUB -A p20519
-#MSUB -l walltime=24:00:00
+#MSUB -l walltime=4:00:00
 #MSUB -l nodes=1:ppn=1
-#MSUB -j oe
 #MSUB -M jiawu@u.northwestern.edu
-#MSUB -e FIMO_error_file.err
-#MSUB -o FIMO_log_file_SEARCHBASECONSTANT.log
+#MSUB -j oe
+#MSUB -o /projects/p20519/jia_output/error.txt
 #MSUB -m bae
-#MSUB -q normal
+#MSUB -q short
+#MSUB -N SEARCHBASECONSTANT_$nbatch
+#MSUB -V
 
 export R_LIBS="/home/jjw036/R/library"
 export PATH="$PATH:/home/jjw036/.local/bin"
@@ -26,7 +27,7 @@ export VIRTUALENVWRAPPER_VIRTUALENV="/home/jjw036/.local/bin/virtualenv"
 workon seqgen
 module load python/anaconda3
 
-chunk_size=20
+chunk_size=5
 counter=0
 search_base=SEARCHBASECONSTANT
 search=SEARCHCONSTANT
@@ -36,7 +37,6 @@ output_folder="OUTPUTCONSTANT_output"
 nbatch=${MOAB_JOBARRAYINDEX}
 nfiles=${#all_filenames[@]}
 max_batch=$(($(($nfiles+$chunk_size-1))/$chunk_size))
-#MSUB -N SEARCHBASECONSTANT_$nbatch
 
 #this script will generate one job array (500 jobs)
 #how is this different from fimo_script.sh?
