@@ -52,21 +52,35 @@ if __name__ == "__main__":
       #function parses line, and appends entry to the key
       result_list.append(line)
 
-  print(result_list[0])
+  #print(result_list[0])
   seq_name=result_list[0].split()
   seq_name=seq_name[1]
   seq_name = seq_name.split("_")
-  motif_family = seq_name[0] + "_family.txt"
+  motif_family_file = seq_name[0] + "_family.txt"
+  
+  with open(motif_family_file, 'r') as motif_file:
+    motif_family = [line.strip() for line in motif_file]
+    
   collection_base_name = "_".join(seq_name[0:4])
   motif_name = "_".join(seq_name[0:-3])
   #after the results are aggregated, perform calculations
   #print("HELLOWORLD")
-  motif_family_scores = sequence_container.calculate_senspec(motif_family)
+  #print("CHECKING THE FAMILY")
+  motif_family_scores = sequence_container.calculate_senspec(motif_family,True,True)
   #print(motif_family_scores)
-  motif_indiv_scores = sequence_container.calculate_senspec([motif_name])
+  #print("CHECKING THE INDIVIDUAL")
+  #print(motif_name)
+  #print(seq_name)
+  #motif_name = "SMAD3_02"
+  #motif_name = "P53_01"
+  motif_indiv_scores = sequence_container.calculate_senspec([motif_name], True, True)
+  #get non-overlapping means only get motifs that don't overlap
+  #
+  
   #print(motif_indiv_scores)
   #insert to model
   #sequence_container.insert_contents(Model)
+  #collection_base_name = "new_P53_seqs"
   sequence_container.insert_contents(collection_base_name, motif_family_scores, motif_indiv_scores)
 
   #big_dict = sequence_container.get_dict()

@@ -8,10 +8,10 @@
 
 #for each job, have a wait time every 40 jobs.
 
-chunk_size=5
+chunk_size=20
 counter=0
 #get all files
-search=GATA1_01_1_10000000
+search=GATA1_01_1_100000
 all_filenames=($(find /projects/p20519/jia_output/FIMO/GATA1_01/$search.* -type f))
 output_folder="GATA1_output"
 

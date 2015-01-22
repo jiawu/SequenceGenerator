@@ -6,7 +6,7 @@ from pymongo import MongoClient
 
 DB_ADDRESS = "hera.chem-eng.northwestern.edu"
 PORT=27017
-DB_NAME = "SeqGen_Database2"
+DB_NAME = "SeqGen_Database_v2"
 
 class CandidateSequences:
 
@@ -38,7 +38,7 @@ class CandidateSequences:
     else:
       return False  
    
-  def calculate_senspec(self, motif_family, any_contains=True):
+  def calculate_senspec(self, motif_family, any_contains=True, get_nonoverlapping=True):
     """returns a score dict, which is a dict of dicts"""
     score_parent_dict = {}
     for key in self.sequence_dict:
@@ -56,13 +56,22 @@ class CandidateSequences:
       # to calculate the senspec score, multiply the sensitivity score with the
       # specificity score
       ontarget_list = self.get_ontarget_motifs(entry_list, motif_family,any_contains)
+      print(motif_family)
+      #print("ontarget list:")
       #print(list(ontarget_list))
-      nonoverlapping_ontarget_list = self.get_nonoverlapping_motifs(ontarget_list)
-      
+      #for item in ontarget_list:
+      #  print(item['motif_name'])
+
+      if (get_nonoverlapping==True):
+        nonoverlapping_ontarget_list = self.get_nonoverlapping_motifs(ontarget_list)
+      else:
+        nonoverlapping_ontarget_list = ontarget_list
+        nonoverlapping_ontarget_list = list(nonoverlapping_ontarget_list)
+    
       n_fam = len(nonoverlapping_ontarget_list)
       #calculate combined zscore
       z_fam = self.get_combined_zscore(nonoverlapping_ontarget_list)
-      
+      print(z_fam)
       if n_fam == 0 :
         sensitivity_score = 0
         z_fam = 0
@@ -71,12 +80,16 @@ class CandidateSequences:
 
       offtarget_list = self.get_offtarget_motifs(entry_list,motif_family, any_contains)
       offtarget_list = list(offtarget_list)
-      n_other = len(offtarget_list)
+      print("offtarget list:")
+      for item in offtarget_list:
+        print(item['motif_name'])
       
-      if n_other == 0:
-        specificity_score = z_fam/1
+      #nonoverlapping_overall_list = self.get_nonoverlapping_motifs(entry_list)
+      z_other = self.get_combined_zscore(nonoverlapping_ontarget_list+offtarget_list)
+      if z_other == 0:
+        specificity_score = 0
       else:
-        specificity_score = z_fam/n_other #n_other contains motifs including overlapping
+        specificity_score = z_fam/z_other #n_other contains motifs including overlapping
       
       senspec_score = specificity_score * sensitivity_score
 
@@ -108,7 +121,7 @@ class CandidateSequences:
     #sequence_dict is a dict with the key as the name and the entries as the
     #entries
     #for key in self.sequence_dict:
-      #entries_collection.insert(self.sequence_dict[key])
+    #  entries_collection.insert(self.sequence_dict[key])
 
     score_dict_list = []
     #insert scores
@@ -134,8 +147,8 @@ class CandidateSequences:
     print(score_dict_list)
     #scores_collection_top.insert(score_dict_list[0:100])
     #scores_collection.insert(score_dict_list[100:])
-    scores_collection_top.insert(score_dict_list[0:1])
-    scores_collection.insert(score_dict_list[1:])
+    #scores_collection_top.insert(score_dict_list[0:1])
+    scores_collection.insert(score_dict_list[0:])
     mongo_client.close()
     return True  
 
